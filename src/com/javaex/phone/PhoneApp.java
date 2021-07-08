@@ -1,161 +1,112 @@
 package com.javaex.phone;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.util.List;
+import java.util.Scanner;
+import java.util.ArrayList;
 
 public class PhoneApp {
-	public static void main(String[] args) throws IOException {
-		BufferedReader bfR = new BufferedReader(new InputStreamReader(System.in));
-		BufferedWriter bfW = new BufferedWriter(new OutputStreamWriter(System.out));
-		
+
+	public static void main(String[] args) {
+
+		// 스캐너
+		Scanner input = new Scanner(System.in);
 		PhoneDao phoneDao = new PhoneDao();
-		
-		int personID;
-		String name;
-		String hp;
-		String company;
-		
-		while (true) {
-			bfW.write("1.리스트  2.등록  3.수정  4.삭제  5.검색  6.종료");
-			bfW.newLine();
-			bfW.write("--------------------------------------");
-			bfW.newLine();
-			bfW.write(">메뉴번호: ");
-			bfW.flush();
-			int str = Integer.parseInt(bfR.readLine());
-			
-			switch (str) {
 
-			case 1:
-				bfW.write("<1.리스트>");
-				bfW.newLine();
-				bfW.flush();
-				showList(phoneDao.phoneList());
-				continue;
+		// 시작
+		System.out.println("****************************************");
+		System.out.println("*       전화번호 관리 프로그램         *");
+		System.out.println("****************************************");
 
-			case 2:
-				bfW.write("<2.등록>");
-				bfW.flush();
-				bfW.newLine();
-				bfW.write("이름 > ");
-				bfW.flush();
-				name = bfR.readLine();
-				bfW.write("휴대전화 > ");
-				bfW.flush();
-				hp = bfR.readLine();
-				bfW.write("회사번호 > ");
-				bfW.flush();
-				company = bfR.readLine();
+		// DB 가져오기
+		List<PersonVo> phoneList = new ArrayList<PersonVo>();
 
-				int istCount = phoneDao.phoneInsert(new PhoneVo(name, hp, company));
-
-				if (istCount > 0)
-					bfW.write("[" + istCount + "건 등록되었습니다.]");
-				else
-					bfW.write("ERROR: " + istCount);
-				
-				bfW.newLine();
-				bfW.newLine();
-				continue;
-				
-			case 3:
-				bfW.write("<3.수정>");
-				bfW.flush();
-				bfW.newLine();
-				bfW.write("번호 > ");
-				bfW.flush();
-				personID = Integer.parseInt(bfR.readLine());
-				bfW.write("이름 > ");
-				bfW.flush();
-				name = bfR.readLine();
-				bfW.write("휴대전화 > ");
-				bfW.flush();
-				hp = bfR.readLine();
-				bfW.write("회사번호 > ");
-				bfW.flush();
-				company = bfR.readLine();
-
-				int udtCount = phoneDao.phoneUpdate(new PhoneVo(personID, name, hp, company));
-
-				if (udtCount > 0)
-					bfW.write("[" + udtCount + "건 수정되었습니다.]");
-				else
-					bfW.write("ERROR: " + udtCount);
-
-				bfW.newLine();
-				bfW.newLine();
-				continue;
-
-			case 4:
-				bfW.write("<4.삭제>");
-				bfW.flush();
-				bfW.newLine();
-				bfW.write("번호 > ");
-				bfW.flush();
-				personID = Integer.parseInt(bfR.readLine());
-				
-				int dltCount = phoneDao.phoneDelete(new PhoneVo(personID));
-				
-				if (dltCount > 0)
-					bfW.write("[" + dltCount + "건 삭제되었습니다.]");
-				else
-					bfW.write("ERROR: " + dltCount);
-
-				bfW.newLine();
-				bfW.newLine();
-				continue;
-
-			case 5:
-				bfW.write("<5.검색>");
-				bfW.flush();
-				bfW.newLine();
-				bfW.write("검색어 > ");
-				bfW.flush();
-				String keyword = bfR.readLine();
-				
-				showList(phoneDao.phoneList(keyword));
-				
-				continue;
-
-			case 6:
-				bfW.newLine();
-				bfW.write("**************************************");
-				bfW.newLine();
-				bfW.write("*               감사합니다               *");
-				bfW.newLine();
-				bfW.write("**************************************");
-				bfW.flush();
+		Boolean loop = true;
+		// 반복문
+		while (loop) {
+			System.out.println("1.리스트  2.등록  3.삭제  4.검색  5.종료");
+			System.out.println("----------------------------------------");
+			System.out.print(">메뉴번호: ");
+			int num = input.nextInt();
+			switch (num) {
+			// List
+			case 1: {
+				System.out.println("<1.리스트>");
+				//List 출력
+				phoneList = phoneDao.getPersonList();
+				printList(phoneList);
+				System.out.println();
 				break;
-
-			default:
-				bfW.write("[다시 입력해주세요.]");
-				bfW.newLine();
-				bfW.newLine();
-				bfW.flush();
-				continue;
-				
 			}
-			
-			break;
-			
+			//Update
+			case 2: {
+				//Scanner 등록
+				System.out.println("<2.등록>");
+				System.out.print(">이름: ");
+				String name = input.next();
+				System.out.print(">휴대전화: ");
+				String hp = input.next();
+				System.out.print(">회사전화: ");
+				String company = input.next();
+				PersonVo uPersonVo = new PersonVo(name, hp, company);
+				phoneDao.personInsert(uPersonVo);
+				System.out.println("[등록되었습니다.]");
+				//List 출력
+				phoneList = phoneDao.getPersonList();
+				printList(phoneList);
+				System.out.println();
+				break;
+			}
+			//Delete
+			case 3: {
+				//Scanner 삭제
+				System.out.println("<3. 삭제>");
+				System.out.print(">번호: ");
+				int delete = input.nextInt();
+				phoneDao.personDelete(delete);
+				System.out.println("[삭제되었습니다.]");
+				//List 출력
+				phoneList = phoneDao.getPersonList();
+				printList(phoneList);
+				System.out.println();
+				break;
+			}
+			case 4: {
+				System.out.println("<4.검색>");
+				System.out.print(">이름: ");
+				String search = input.next();
+				phoneList = phoneDao.personSearch(search);
+				printList(phoneList);
+				System.out.println();
+				break;
+			}
+			case 5: {
+				System.out.println();
+				loop = false;
+				break;
+			}
+			default:
+				System.out.println("[다시 입력해주세요]");
+				System.out.println();
+				break;
+			}
+
 		}
-		
-	}
-	
-	public static void showList(List<PhoneVo> e) {
-		for (PhoneVo p : e) {
-			System.out.println(
-					"순번: " + p.getPersonID() + "\t"
-					+ "이름: " + p.getName() + "\t"
-					+ "휴대전화: " + p.getHp() + "\t"
-					+ "회사번호: " + p.getCompany()
-					);
-		}
-		System.out.println();
+
+		System.out.println("****************************************");
+		System.out.println("*             감사합니다               *");
+		System.out.println("****************************************");
+
+		input.close();
+
 	}
 
+	public static void printList(List<PersonVo> personList) {
+
+		for (int i = 0; i < personList.size(); i++) {
+
+			PersonVo personVo = personList.get(i);
+			System.out.println(personVo.getPersonId() + ". " + personVo.getName() + "  " + personVo.getHp() + "  "
+					+ personVo.getCompany());
+		}
+	}
 }
